@@ -45,7 +45,7 @@ describe('Testes da Funcionalidade Usuários', () => {
       failOnStatusCode: false,
       body: {
         nome: 'Usuário inválido',
-        email: 'invalido.com', 
+        email: 'invalido.com',
         password: 'teste',
         administrador: 'true'
       }
@@ -54,19 +54,33 @@ describe('Testes da Funcionalidade Usuários', () => {
     })
   })
 
-  it('Deve editar um usuário previamente cadastrado', () => {
-    const email = `editar${Math.floor(Math.random() * 10000)}@qa.com`
+  it('Deve retornar erro ao cadastrar usuário com e-mail duplicado', () => {
+    const email = `duplicado@qa.com`
 
+    // Cria o primeiro usuário
+    cy.cadastrarUsuario('Usuário Duplicado', email, '1234')
+
+    // Tenta criar novamente com o mesmo e-mail
     cy.request({
       method: 'POST',
       url: '/usuarios',
+      failOnStatusCode: false,
       body: {
-        nome: 'Usuário a Editar',
-        email: email,
-        password: '1234',
-        administrador: 'true'
+        nome: 'Usuário Duplicado 2',
+        email,
+        password: '4321',
+        administrador: 'false'
       }
-    }).then((response) => {
+    }).should((response) => {
+      expect(response.status).to.equal(400)
+      expect(response.body.message).to.equal('Este email já está sendo usado')
+    })
+  })
+
+  it('Deve editar um usuário previamente cadastrado', () => {
+    const email = `editar${Math.floor(Math.random() * 10000)}@qa.com`
+
+    cy.cadastrarUsuario('Usuário a Editar', email, '1234').then((response) => {
       const id = response.body._id
 
       cy.request({
@@ -88,16 +102,7 @@ describe('Testes da Funcionalidade Usuários', () => {
   it('Deve deletar um usuário previamente cadastrado', () => {
     const email = `deletar${Math.floor(Math.random() * 10000)}@qa.com`
 
-    cy.request({
-      method: 'POST',
-      url: '/usuarios',
-      body: {
-        nome: 'Usuário para deletar',
-        email: email,
-        password: '1234',
-        administrador: 'true'
-      }
-    }).then((response) => {
+    cy.cadastrarUsuario('Usuário para Deletar', email, '1234').then((response) => {
       const id = response.body._id
 
       cy.request({
