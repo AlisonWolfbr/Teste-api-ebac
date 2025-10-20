@@ -1,49 +1,49 @@
 pipeline {
+    agent any
 
-  agent any
+    stages {
+        stage('Clonar Repositório') {
+            steps {
+                
+                checkout scm 
+            }
+        }
 
-  stages {
+        stage('Instalar Dependências') {
+            steps {
+                sh 'npm install'
+            }
+        }
 
-    stage('Clonar repositório') {
+        stage('Subir Servidor (Background)') {
+            steps {
+                
+                sh 'npm start &' 
+                
+                sh 'sleep 5' 
+            }
+        }
 
-      steps {
-
-        git branch: 'main', url: 'https://github.com/FabioSanMartin/testes-api-cy.git'
-
-      }
-
+        stage('Executar Testes') {
+            steps {
+                // Executa os testes Cypress ou API
+                sh 'npm run cy:run' 
+            }
+        }
     }
 
-    stage('Instalar dependencias') {
-
-      steps {
-
-        bat 'npm install'
-
-      }
-
+    
+    post {
+        always {
+            
+            echo 'Encerrando processo do servidor...'
+            sh 'pkill -f "npm start"'
+        }
+        success {
+            echo 'Pipeline de Testes concluído com SUCESSO! '
+        }
+        failure {
+            echo 'Pipeline de Testes falhou. '
+        }
     }
-
-    stage('Subir servidor') {
-
-      steps {
-
-        bat 'npm start'
-
-      }
-
-    }
-
-    stage('Realizar os testes') {
-
-      steps {
-
-        bat 'npm run cy:run'
-
-      }
-
-    }
-
-  }
-
 }
