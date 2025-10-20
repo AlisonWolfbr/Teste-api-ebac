@@ -32,10 +32,10 @@ pipeline {
             bat 'taskkill /f /im node.exe || exit 0' 
         }
         success {
-            echo 'Pipeline de Testes concluído com SUCESSO! 🎉'
+            echo 'Pipeline de Testes concluído com SUCESSO!'
         }
         failure {
-            echo 'Pipeline de Testes falhou. ❌'
+            echo 'Pipeline de Testes falhou.'
         }
     }
 }
