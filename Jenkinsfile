@@ -26,7 +26,7 @@ pipeline {
 
         stage('Executar Testes') {
             steps {
-                // Executa os testes Cypress ou API
+                
                 sh 'npm run cy:run' 
             }
         }
